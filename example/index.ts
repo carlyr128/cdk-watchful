@@ -67,7 +67,7 @@ class TrafficDriver extends Construct {
     }
 
     this.fn = new lambda.Function(this, 'LambdaFunction', {
-      code: lambda.Code.asset(path.join(__dirname, 'lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, 'lambda')),
       runtime: lambda.Runtime.NODEJS_10_X,
       handler: 'index.handler',
       environment: {

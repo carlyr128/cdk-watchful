@@ -80,12 +80,7 @@ export class WatchApiGateway extends Construct {
     }
 
     this.watchful.addSection(props.title, {
-      links: [
-        {
-          title: 'Amazon API Gateway Console',
-          url: linkForApiGateway(props.restApi),
-        },
-      ],
+      links: [{ title: 'Amazon API Gateway Console', url: linkForApiGateway(props.restApi) }],
     });
     [undefined, ...(props.watchedOperations || [])].forEach((operation) =>
       this.watchful.addWidgets(
