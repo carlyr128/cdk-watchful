@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 
 const enum Metrics {
   DatabaseConnections = 'DatabaseConnections',
@@ -22,10 +22,7 @@ export class RedshiftMetricFactory {
   }
 
   metricAverageDiskSpaceUsageInPercent(clusterIdentifier: string) {
-    return this.metric(
-      Metrics.PercentageDiskSpaceUsed,
-      clusterIdentifier,
-    ).with({ statistic: Statistic.AVERAGE });
+    return this.metric(Metrics.PercentageDiskSpaceUsed, clusterIdentifier).with({ statistic: Statistic.AVERAGE });
   }
 
   metricAverageCpuUsageInPercent(clusterIdentifier: string) {
@@ -39,10 +36,7 @@ export class RedshiftMetricFactory {
       shortQueries: this.metricQueryDuration('short', clusterIdentifier).with({
         statistic: Statistic.AVERAGE,
       }),
-      mediumQueries: this.metricQueryDuration(
-        'medium',
-        clusterIdentifier,
-      ).with({ statistic: Statistic.AVERAGE }),
+      mediumQueries: this.metricQueryDuration('medium', clusterIdentifier).with({ statistic: Statistic.AVERAGE }),
       longQueries: this.metricQueryDuration('long', clusterIdentifier).with({
         statistic: Statistic.AVERAGE,
       }),

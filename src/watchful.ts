@@ -1,10 +1,8 @@
-import { Aspects, CfnOutput } from 'aws-cdk-lib';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatch_actions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
-import { ApplicationTargetGroup } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as sns from 'aws-cdk-lib/aws-sns';
@@ -12,16 +10,18 @@ import * as sns_subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as stepfunctions from 'aws-cdk-lib/aws-stepfunctions';
 
-import { Construct } from 'constructs';
+import { Aspects, CfnOutput } from 'aws-cdk-lib';
 import { IWatchful, SectionOptions } from './api';
 import { WatchApiGateway, WatchApiGatewayOptions } from './api-gateway';
-import { WatchfulAspect, WatchfulAspectProps } from './aspect';
 import { WatchDynamoTable, WatchDynamoTableOptions } from './dynamodb';
 import { WatchEcsService, WatchEcsServiceOptions } from './ecs';
 import { WatchLambdaFunction, WatchLambdaFunctionOptions } from './lambda';
 import { WatchRdsAurora, WatchRdsAuroraOptions } from './rds-aurora';
 import { WatchStateMachine, WatchStateMachineOptions } from './state-machine';
+import { WatchfulAspect, WatchfulAspectProps } from './aspect';
 
+import { ApplicationTargetGroup } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { Construct } from 'constructs';
 import { SectionWidget } from './widget/section';
 
 export interface WatchfulProps {
@@ -99,24 +99,20 @@ export class Watchful extends Construct implements IWatchful {
     }
 
     if (props.alarmEmail && this.alarmTopic) {
-      this.alarmTopic.addSubscription(
-        new sns_subscriptions.EmailSubscription(props.alarmEmail),
-      );
+      this.alarmTopic.addSubscription(new sns_subscriptions.EmailSubscription(props.alarmEmail));
     }
 
     if (props.alarmSqs && this.alarmTopic) {
       this.alarmTopic.addSubscription(
         new sns_subscriptions.SqsSubscription(
           // sqs.Queue.fromQueueArn(this, 'AlarmQueue', props.alarmSqs)
-          props.alarmSqs,
-        ),
+          props.alarmSqs
+        )
       );
     }
 
     if (props.dashboard === false && props.dashboardName) {
-      throw new Error(
-        'Dashboard name is provided but dashboard creation is disabled',
-      );
+      throw new Error('Dashboard name is provided but dashboard creation is disabled');
     }
     if (props.dashboard !== false) {
       this.dash = new cloudwatch.Dashboard(this, 'Dashboard', {
@@ -136,20 +132,11 @@ export class Watchful extends Construct implements IWatchful {
   public addAlarm(alarm: cloudwatch.IAlarm) {
     const alarmWithAction = hasAlarmAction(alarm)
       ? alarm
-      : new cloudwatch.CompositeAlarm(
-        this,
-        `Created Alarm ${this.createdAlarmCount++}`,
-        {
-          alarmRule: cloudwatch.AlarmRule.fromAlarm(
-            alarm,
-            cloudwatch.AlarmState.ALARM,
-          ),
-        },
-      );
+      : new cloudwatch.CompositeAlarm(this, `Created Alarm ${this.createdAlarmCount++}`, {
+          alarmRule: cloudwatch.AlarmRule.fromAlarm(alarm, cloudwatch.AlarmState.ALARM),
+        });
     if (this.alarmTopic) {
-      alarmWithAction.addAlarmAction(
-        new cloudwatch_actions.SnsAction(this.alarmTopic),
-      );
+      alarmWithAction.addAlarmAction(new cloudwatch_actions.SnsAction(this.alarmTopic));
     }
 
     alarmWithAction.addAlarmAction(...this.alarmActions);
@@ -161,7 +148,7 @@ export class Watchful extends Construct implements IWatchful {
         titleLevel: 1,
         titleMarkdown: title,
         quicklinks: options.links,
-      }),
+      })
     );
   }
 
@@ -170,11 +157,7 @@ export class Watchful extends Construct implements IWatchful {
     Aspects.of(scope).add(aspect);
   }
 
-  public watchDynamoTable(
-    title: string,
-    table: dynamodb.Table,
-    options: WatchDynamoTableOptions = {},
-  ) {
+  public watchDynamoTable(title: string, table: dynamodb.Table, options: WatchDynamoTableOptions = {}) {
     return new WatchDynamoTable(this, table.node.id, {
       title,
       watchful: this,
@@ -183,11 +166,7 @@ export class Watchful extends Construct implements IWatchful {
     });
   }
 
-  public watchApiGateway(
-    title: string,
-    restApi: apigw.RestApi,
-    options: WatchApiGatewayOptions = {},
-  ) {
+  public watchApiGateway(title: string, restApi: apigw.RestApi, options: WatchApiGatewayOptions = {}) {
     return new WatchApiGateway(this, restApi.node.id, {
       title,
       watchful: this,
@@ -196,11 +175,7 @@ export class Watchful extends Construct implements IWatchful {
     });
   }
 
-  public watchLambdaFunction(
-    title: string,
-    fn: lambda.Function,
-    options: WatchLambdaFunctionOptions = {},
-  ) {
+  public watchLambdaFunction(title: string, fn: lambda.Function, options: WatchLambdaFunctionOptions = {}) {
     return new WatchLambdaFunction(this, fn.node.id, {
       title,
       watchful: this,
@@ -209,11 +184,7 @@ export class Watchful extends Construct implements IWatchful {
     });
   }
 
-  public watchStateMachine(
-    title: string,
-    stateMachine: stepfunctions.StateMachine,
-    options: WatchStateMachineOptions = {},
-  ) {
+  public watchStateMachine(title: string, stateMachine: stepfunctions.StateMachine, options: WatchStateMachineOptions = {}) {
     return new WatchStateMachine(this, stateMachine.node.id, {
       title,
       watchful: this,
@@ -222,11 +193,7 @@ export class Watchful extends Construct implements IWatchful {
     });
   }
 
-  public watchRdsAuroraCluster(
-    title: string,
-    cluster: rds.DatabaseCluster,
-    options: WatchRdsAuroraOptions = {},
-  ) {
+  public watchRdsAuroraCluster(title: string, cluster: rds.DatabaseCluster, options: WatchRdsAuroraOptions = {}) {
     return new WatchRdsAurora(this, cluster.node.id, {
       title,
       watchful: this,
@@ -234,12 +201,7 @@ export class Watchful extends Construct implements IWatchful {
       ...options,
     });
   }
-  public watchFargateEcs(
-    title: string,
-    fargateService: ecs.FargateService,
-    targetGroup: ApplicationTargetGroup,
-    options: WatchEcsServiceOptions = {},
-  ) {
+  public watchFargateEcs(title: string, fargateService: ecs.FargateService, targetGroup: ApplicationTargetGroup, options: WatchEcsServiceOptions = {}) {
     return new WatchEcsService(this, fargateService.node.id, {
       title,
       watchful: this,
@@ -248,12 +210,7 @@ export class Watchful extends Construct implements IWatchful {
       ...options,
     });
   }
-  public watchEc2Ecs(
-    title: string,
-    ec2Service: ecs.Ec2Service,
-    targetGroup: ApplicationTargetGroup,
-    options: WatchEcsServiceOptions = {},
-  ) {
+  public watchEc2Ecs(title: string, ec2Service: ecs.Ec2Service, targetGroup: ApplicationTargetGroup, options: WatchEcsServiceOptions = {}) {
     return new WatchEcsService(this, ec2Service.node.id, {
       title,
       watchful: this,
@@ -270,7 +227,7 @@ function linkForDashboard(dashboard: cloudwatch.Dashboard) {
 }
 
 function hasAlarmAction(
-  alarm: cloudwatch.IAlarm,
+  alarm: cloudwatch.IAlarm
 ): alarm is cloudwatch.IAlarm & {
   addAlarmAction: (...actions: cloudwatch.IAlarmAction[]) => void;
 } {

@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 
 const enum Metrics {
   ConsumedReadCapacityUnits = 'ConsumedReadCapacityUnits',

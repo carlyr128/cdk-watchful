@@ -21,26 +21,14 @@ const ApplicationELBNamespace = 'AWS/ApplicationELB';
 
 export class EcsMetricFactory {
   metricCpuUtilizationAverage(clusterName: string, serviceName: string) {
-    return this.ecsMetric(
-      EcsMetrics.CPUUtilization,
-      clusterName,
-      serviceName,
-    ).with({ statistic: Statistic.AVERAGE });
+    return this.ecsMetric(EcsMetrics.CPUUtilization, clusterName, serviceName).with({ statistic: Statistic.AVERAGE });
   }
 
   metricMemoryUtilizationAverage(clusterName: string, serviceName: string) {
-    return this.ecsMetric(
-      EcsMetrics.MemoryUtilization,
-      clusterName,
-      serviceName,
-    ).with({ statistic: Statistic.AVERAGE });
+    return this.ecsMetric(EcsMetrics.MemoryUtilization, clusterName, serviceName).with({ statistic: Statistic.AVERAGE });
   }
 
-  protected ecsMetric(
-    metric: EcsMetrics,
-    clusterName: string,
-    serviceName: string,
-  ) {
+  protected ecsMetric(metric: EcsMetrics, clusterName: string, serviceName: string) {
     return new Metric({
       namespace: EcsNamespace,
       metricName: metric,
@@ -52,27 +40,15 @@ export class EcsMetricFactory {
   }
 
   metricMinHealthyHostCount(targetGroup: string, loadBalancer: string) {
-    return this.albMetric(
-      ApplicationELBMetrics.HealthyHostCount,
-      targetGroup,
-      loadBalancer,
-    ).with({ statistic: Statistic.MINIMUM });
+    return this.albMetric(ApplicationELBMetrics.HealthyHostCount, targetGroup, loadBalancer).with({ statistic: Statistic.MINIMUM });
   }
 
   metricMaxUnhealthyHostCount(targetGroup: string, loadBalancer: string) {
-    return this.albMetric(
-      ApplicationELBMetrics.UnHealthyHostCount,
-      targetGroup,
-      loadBalancer,
-    ).with({ statistic: Statistic.MAXIMUM });
+    return this.albMetric(ApplicationELBMetrics.UnHealthyHostCount, targetGroup, loadBalancer).with({ statistic: Statistic.MAXIMUM });
   }
 
   metricTargetResponseTime(targetGroup: string, loadBalancer: string) {
-    const baseMetric = this.albMetric(
-      ApplicationELBMetrics.TargetResponseTime,
-      targetGroup,
-      loadBalancer,
-    );
+    const baseMetric = this.albMetric(ApplicationELBMetrics.TargetResponseTime, targetGroup, loadBalancer);
 
     return {
       min: baseMetric.with({ statistic: Statistic.MINIMUM }),
@@ -82,11 +58,7 @@ export class EcsMetricFactory {
   }
 
   metricRequestCount(targetGroup: string, loadBalancer: string) {
-    return this.albMetric(
-      ApplicationELBMetrics.RequestCount,
-      targetGroup,
-      loadBalancer,
-    ).with({ statistic: Statistic.SUM });
+    return this.albMetric(ApplicationELBMetrics.RequestCount, targetGroup, loadBalancer).with({ statistic: Statistic.SUM });
   }
 
   metricHttpErrorStatusCodeRate(targetGroup: string, loadBalancer: string) {
@@ -104,34 +76,14 @@ export class EcsMetricFactory {
 
   metricHttpStatusCodeCount(targetGroup: string, loadBalancer: string) {
     return {
-      count2XX: this.albMetric(
-        ApplicationELBMetrics.TARGET_2XX_COUNT,
-        targetGroup,
-        loadBalancer,
-      ).with({ statistic: Statistic.SUM }),
-      count3XX: this.albMetric(
-        ApplicationELBMetrics.TARGET_3XX_COUNT,
-        targetGroup,
-        loadBalancer,
-      ).with({ statistic: Statistic.SUM }),
-      count4XX: this.albMetric(
-        ApplicationELBMetrics.TARGET_4XX_COUNT,
-        targetGroup,
-        loadBalancer,
-      ).with({ statistic: Statistic.SUM }),
-      count5XX: this.albMetric(
-        ApplicationELBMetrics.TARGET_5XX_COUNT,
-        targetGroup,
-        loadBalancer,
-      ).with({ statistic: Statistic.SUM }),
+      count2XX: this.albMetric(ApplicationELBMetrics.TARGET_2XX_COUNT, targetGroup, loadBalancer).with({ statistic: Statistic.SUM }),
+      count3XX: this.albMetric(ApplicationELBMetrics.TARGET_3XX_COUNT, targetGroup, loadBalancer).with({ statistic: Statistic.SUM }),
+      count4XX: this.albMetric(ApplicationELBMetrics.TARGET_4XX_COUNT, targetGroup, loadBalancer).with({ statistic: Statistic.SUM }),
+      count5XX: this.albMetric(ApplicationELBMetrics.TARGET_5XX_COUNT, targetGroup, loadBalancer).with({ statistic: Statistic.SUM }),
     };
   }
 
-  protected albMetric(
-    metric: ApplicationELBMetrics,
-    targetGroup: string,
-    loadBalancer: string,
-  ) {
+  protected albMetric(metric: ApplicationELBMetrics, targetGroup: string, loadBalancer: string) {
     return new Metric({
       namespace: ApplicationELBNamespace,
       metricName: metric,

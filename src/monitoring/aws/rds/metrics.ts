@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 
 const enum Metrics {
   SelectThroughput = 'SelectThroughput',
@@ -21,22 +21,10 @@ const Namespace = 'AWS/RDS';
 export class RdsAuroraMetricFactory {
   metricDmlThroughput(clusterIdentifier: string) {
     return {
-      dbInsertThroughputMetric: this.metric(
-        Metrics.InsertThroughput,
-        clusterIdentifier,
-      ).with({ statistic: Statistic.SUM }),
-      dbUpdateThroughputMetric: this.metric(
-        Metrics.UpdateThroughput,
-        clusterIdentifier,
-      ).with({ statistic: Statistic.SUM }),
-      dbSelectThroughputMetric: this.metric(
-        Metrics.SelectThroughput,
-        clusterIdentifier,
-      ).with({ statistic: Statistic.SUM }),
-      dbDeleteThroughputMetric: this.metric(
-        Metrics.DeleteThroughput,
-        clusterIdentifier,
-      ).with({ statistic: Statistic.SUM }),
+      dbInsertThroughputMetric: this.metric(Metrics.InsertThroughput, clusterIdentifier).with({ statistic: Statistic.SUM }),
+      dbUpdateThroughputMetric: this.metric(Metrics.UpdateThroughput, clusterIdentifier).with({ statistic: Statistic.SUM }),
+      dbSelectThroughputMetric: this.metric(Metrics.SelectThroughput, clusterIdentifier).with({ statistic: Statistic.SUM }),
+      dbDeleteThroughputMetric: this.metric(Metrics.DeleteThroughput, clusterIdentifier).with({ statistic: Statistic.SUM }),
     };
   }
 

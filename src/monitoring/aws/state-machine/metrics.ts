@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 
 const enum Metrics {
   ExecutionsStarted = 'ExecutionsStarted',
@@ -20,10 +20,7 @@ export class StateMachineMetricFactory {
         label: 'Total',
         statistic: Statistic.SUM,
       }),
-      succeeded: this.metric(
-        Metrics.ExecutionsSucceeded,
-        stateMachineArn,
-      ).with({ label: 'Executions Succeeded', statistic: Statistic.SUM }),
+      succeeded: this.metric(Metrics.ExecutionsSucceeded, stateMachineArn).with({ label: 'Executions Succeeded', statistic: Statistic.SUM }),
       failed: this.metric(Metrics.ExecutionsFailed, stateMachineArn).with({
         label: 'Failed Executions',
         statistic: Statistic.SUM,

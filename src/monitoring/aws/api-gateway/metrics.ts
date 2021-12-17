@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 import { WatchedOperation } from '../../../api-gateway';
 
 const enum Metrics {
@@ -57,17 +57,8 @@ export class ApiGatewayMetricFactory {
     });
   }
 
-  metricIntegrationLatency(
-    apiName: string,
-    stage: string,
-    op?: WatchedOperation,
-  ) {
-    const baseMetric = this.metric(
-      Metrics.IntegrationLatency,
-      apiName,
-      stage,
-      op,
-    );
+  metricIntegrationLatency(apiName: string, stage: string, op?: WatchedOperation) {
+    const baseMetric = this.metric(Metrics.IntegrationLatency, apiName, stage, op);
 
     return {
       min: baseMetric.with({ label: 'min', statistic: Statistic.MINIMUM }),
@@ -92,12 +83,7 @@ export class ApiGatewayMetricFactory {
     };
   }
 
-  protected metric(
-    metricName: Metrics,
-    apiName: string,
-    stage: string,
-    op?: WatchedOperation,
-  ) {
+  protected metric(metricName: Metrics, apiName: string, stage: string, op?: WatchedOperation) {
     return new Metric({
       metricName,
       namespace: Namespace,

@@ -1,9 +1,9 @@
-import { Duration } from 'aws-cdk-lib';
 import { ComparisonOperator, GraphWidget } from 'aws-cdk-lib/aws-cloudwatch';
 
-import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { Construct } from 'constructs';
+import { Duration } from 'aws-cdk-lib';
 import { IWatchful } from './api';
+import { StateMachine } from 'aws-cdk-lib/aws-stepfunctions';
 import { StateMachineMetricFactory } from './monitoring/aws/state-machine/metrics';
 
 export interface WatchStateMachineOptions {
@@ -45,9 +45,7 @@ export class WatchStateMachine extends Construct {
   }
 
   private createExecutionMetrics() {
-    const execMetrics = this.metrics.metricExecutions(
-      this.stateMachine.stateMachineArn,
-    );
+    const execMetrics = this.metrics.metricExecutions(this.stateMachine.stateMachineArn);
     const { failed } = execMetrics;
     failed.with({
       statistic: 'sum',
@@ -75,7 +73,7 @@ export class WatchStateMachine extends Construct {
             label: 'Execution Failure Alarm',
           },
         ],
-      }),
+      })
     );
   }
 

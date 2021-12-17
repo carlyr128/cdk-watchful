@@ -64,29 +64,12 @@ export class WatchRdsAurora extends Construct {
       links: [{ title: 'AWS RDS Cluster', url: linkForRDS(this.cluster) }],
     });
 
-    const {
-      cpuUtilizationMetric,
-      cpuUtilizationAlarm,
-    } = this.createCpuUtilizationMonitor(props.cpuMaximumThresholdPercent);
-    const {
-      dbConnectionsMetric,
-      dbConnectionsAlarm,
-    } = this.createDbConnectionsMonitor(props.dbConnectionsMaximumThreshold);
-    const {
-      dbReplicaLagMetric,
-      dbReplicaLagAlarm,
-    } = this.createDbReplicaLagMonitor(props.dbReplicaLagMaximumThreshold);
-    const {
-      dbBufferCacheHitRatioMetric,
-      dbBufferCacheHitRatioAlarm,
-    } = this.createDbBufferCacheMonitor(props.dbBufferCacheMinimumThreshold);
+    const { cpuUtilizationMetric, cpuUtilizationAlarm } = this.createCpuUtilizationMonitor(props.cpuMaximumThresholdPercent);
+    const { dbConnectionsMetric, dbConnectionsAlarm } = this.createDbConnectionsMonitor(props.dbConnectionsMaximumThreshold);
+    const { dbReplicaLagMetric, dbReplicaLagAlarm } = this.createDbReplicaLagMonitor(props.dbReplicaLagMaximumThreshold);
+    const { dbBufferCacheHitRatioMetric, dbBufferCacheHitRatioAlarm } = this.createDbBufferCacheMonitor(props.dbBufferCacheMinimumThreshold);
 
-    const {
-      dbInsertThroughputMetric,
-      dbUpdateThroughputMetric,
-      dbSelectThroughputMetric,
-      dbDeleteThroughputMetric,
-    } = this.createDbDmlThroughputMonitor(props.dbThroughputMaximumThreshold);
+    const { dbInsertThroughputMetric, dbUpdateThroughputMetric, dbSelectThroughputMetric, dbDeleteThroughputMetric } = this.createDbDmlThroughputMonitor(props.dbThroughputMaximumThreshold);
 
     this.watchful.addWidgets(
       new cloudwatch.GraphWidget({
@@ -112,90 +95,58 @@ export class WatchRdsAurora extends Construct {
         width: 6,
         left: [dbBufferCacheHitRatioMetric],
         leftAnnotations: [dbBufferCacheHitRatioAlarm.toAnnotation()],
-      }),
+      })
     );
     this.watchful.addWidgets(
       new cloudwatch.GraphWidget({
         title: 'RDS DML Overview',
         width: 24,
-        left: [
-          dbInsertThroughputMetric,
-          dbUpdateThroughputMetric,
-          dbSelectThroughputMetric,
-          dbDeleteThroughputMetric,
-        ],
-      }),
+        left: [dbInsertThroughputMetric, dbUpdateThroughputMetric, dbSelectThroughputMetric, dbDeleteThroughputMetric],
+      })
     );
   }
 
   private createCpuUtilizationMonitor(cpuMaximumThresholdPercent = 80) {
-    const cpuUtilizationMetric = this.metrics.metricCpuUtilization(
-      this.cluster.clusterIdentifier,
-    );
-    const cpuUtilizationAlarm = cpuUtilizationMetric.createAlarm(
-      this,
-      'CpuUtilizationAlarm',
-      {
-        alarmDescription: 'cpuUtilizationAlarm',
-        threshold: cpuMaximumThresholdPercent,
-        comparisonOperator:
-          cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        evaluationPeriods: 3,
-      },
-    );
+    const cpuUtilizationMetric = this.metrics.metricCpuUtilization(this.cluster.clusterIdentifier);
+    const cpuUtilizationAlarm = cpuUtilizationMetric.createAlarm(this, 'CpuUtilizationAlarm', {
+      alarmDescription: 'cpuUtilizationAlarm',
+      threshold: cpuMaximumThresholdPercent,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      evaluationPeriods: 3,
+    });
     return { cpuUtilizationMetric, cpuUtilizationAlarm };
   }
 
   private createDbConnectionsMonitor(dbConnectionsMaximumThreshold = 0) {
-    const dbConnectionsMetric = this.metrics.metricDbConnections(
-      this.cluster.clusterIdentifier,
-    );
-    const dbConnectionsAlarm = dbConnectionsMetric.createAlarm(
-      this,
-      'DbConnectionsAlarm',
-      {
-        alarmDescription: 'dbConnectionsAlarm',
-        threshold: dbConnectionsMaximumThreshold,
-        comparisonOperator:
-          cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        evaluationPeriods: 3,
-      },
-    );
+    const dbConnectionsMetric = this.metrics.metricDbConnections(this.cluster.clusterIdentifier);
+    const dbConnectionsAlarm = dbConnectionsMetric.createAlarm(this, 'DbConnectionsAlarm', {
+      alarmDescription: 'dbConnectionsAlarm',
+      threshold: dbConnectionsMaximumThreshold,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      evaluationPeriods: 3,
+    });
     return { dbConnectionsMetric, dbConnectionsAlarm };
   }
 
   private createDbReplicaLagMonitor(dbReplicaLagMaximumThreshold = 0) {
-    const dbReplicaLagMetric = this.metrics.metricReplicaLag(
-      this.cluster.clusterIdentifier,
-    );
-    const dbReplicaLagAlarm = dbReplicaLagMetric.createAlarm(
-      this,
-      'DbReplicaLagAlarm',
-      {
-        alarmDescription: 'dbConnectionsAlarm',
-        threshold: dbReplicaLagMaximumThreshold,
-        comparisonOperator:
-          cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
-        evaluationPeriods: 3,
-      },
-    );
+    const dbReplicaLagMetric = this.metrics.metricReplicaLag(this.cluster.clusterIdentifier);
+    const dbReplicaLagAlarm = dbReplicaLagMetric.createAlarm(this, 'DbReplicaLagAlarm', {
+      alarmDescription: 'dbConnectionsAlarm',
+      threshold: dbReplicaLagMaximumThreshold,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_THRESHOLD,
+      evaluationPeriods: 3,
+    });
     return { dbReplicaLagMetric, dbReplicaLagAlarm };
   }
 
   private createDbBufferCacheMonitor(dbBufferCacheMinimumThreshold = 0) {
-    const dbBufferCacheHitRatioMetric = this.metrics.metricBufferCacheHitRatio(
-      this.cluster.clusterIdentifier,
-    );
-    const dbBufferCacheHitRatioAlarm = dbBufferCacheHitRatioMetric.createAlarm(
-      this,
-      'DbBufferCacheHitRatioAlarm',
-      {
-        alarmDescription: 'dbConnectionsAlarm',
-        threshold: dbBufferCacheMinimumThreshold,
-        comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
-        evaluationPeriods: 3,
-      },
-    );
+    const dbBufferCacheHitRatioMetric = this.metrics.metricBufferCacheHitRatio(this.cluster.clusterIdentifier);
+    const dbBufferCacheHitRatioAlarm = dbBufferCacheHitRatioMetric.createAlarm(this, 'DbBufferCacheHitRatioAlarm', {
+      alarmDescription: 'dbConnectionsAlarm',
+      threshold: dbBufferCacheMinimumThreshold,
+      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_THRESHOLD,
+      evaluationPeriods: 3,
+    });
     return { dbBufferCacheHitRatioMetric, dbBufferCacheHitRatioAlarm };
   }
   private createDbDmlThroughputMonitor(dbThroughputMaximumThreshold = 0) {

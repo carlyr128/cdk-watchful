@@ -1,5 +1,5 @@
-import { TextWidget } from 'aws-cdk-lib/aws-cloudwatch';
 import { QuickLink } from '../api';
+import { TextWidget } from 'aws-cdk-lib/aws-cloudwatch';
 
 /**
  * Props to create SectionWidget.
@@ -61,11 +61,7 @@ export class SectionWidget extends TextWidget {
     // quick links
 
     if (props.quicklinks && props.quicklinks.length > 0) {
-      lines.push(
-        props.quicklinks
-          .map((link) => `[button:${link.title}](${link.url})`)
-          .join(' '),
-      );
+      lines.push(props.quicklinks.map((link) => `[button:${link.title}](${link.url})`).join(' '));
     }
 
     return lines.join('\n\n');

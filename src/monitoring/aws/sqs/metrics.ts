@@ -1,6 +1,6 @@
-import { Duration } from 'aws-cdk-lib';
 import { Metric, Statistic } from 'aws-cdk-lib/aws-cloudwatch';
 
+import { Duration } from 'aws-cdk-lib';
 
 const enum Metrics {
   ApproximateNumberOfMessagesVisible = 'ApproximateNumberOfMessagesVisible',
@@ -13,10 +13,7 @@ const Namespace = 'AWS/SQS';
 
 export class SqsMetricFactory {
   metricApproximateVisibleMessages(queueName: string) {
-    return this.metric(
-      Metrics.ApproximateNumberOfMessagesVisible,
-      queueName,
-    ).with({ statistic: Statistic.MAXIMUM });
+    return this.metric(Metrics.ApproximateNumberOfMessagesVisible, queueName).with({ statistic: Statistic.MAXIMUM });
   }
 
   metricIncomingMessages(queueName: string) {
